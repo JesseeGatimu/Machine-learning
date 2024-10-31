@@ -1,0 +1,21 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+df=pd.read_csv("/content/penguins_binary_classification.csv")
+df["island"]=df["island"].map({"Torgersen":0,"Biscoe":1,"Dream":2})
+X=df.drop(["species"],axis="columns")
+y=df["species"]
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
+model=RandomForestClassifier()
+model.fit(X_train,y_train)
+model.score(X_test,y_test)
+y_pred=model.predict(X_test)
+cm=confusion_matrix(y_test,y_pred)
+import seaborn as snn
+plt.figure(figsize=(10,7))
+sn.heatmap(cm,annot=True)
+plt.xlabel("Predicted")
+plt.ylabel("Truth")
+plt.show()
