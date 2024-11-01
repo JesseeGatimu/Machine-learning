@@ -1,0 +1,25 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+df=pd.read_csv("/content/spam.csv")
+df["Category"]=df["Category"].map({"spam":0,"ham":1})
+print(df.head(5))
+X_train,X_test,y_train,y_test=train_test_split(df.Message,df.Category,test_size=0.2)
+v=CountVectorizer()
+X_train_count=v.fit_transform(X_train.values)
+X_train_count.toarray()[:3]
+from sklearn.pipeline import Pipeline
+model=Pipeline([
+    ("vectorizer",CountVectorizer()),
+    ("nb",MultinomialNB())
+])
+model.fit(X_train,y_train)
+model.score(X_test,y_test)
+emails=[
+    "Hey Jesse can we meet and go and watch the man united game today",
+    "Upto 2% discount on goods exclusive offer open for shopping today",
+    "win offers and promotion today for services "
+]
+model.predict(emails)
