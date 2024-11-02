@@ -1,0 +1,28 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+df=pd.read_csv("/content/framingham_heart_disease.csv")
+print(df.head(20))
+df=df.dropna(how="any")
+print(df.head(50))
+# we now split the data into training and testing dataset
+print(df.head(5))
+# splitting datasets
+X=df[["male","age","education","currentSmoker","cigsPerDay","BPMeds","prevalentStroke","prevalentHyp","diabetes","totChol","sysBP","diaBP","BMI","heartRate","glucose"]]
+y=df["TenYearCHD"]
+X_train ,X_test ,y_train ,y_test=train_test_split(X,y,train_size=0.9,test_size=0.1)
+# we now train the logistic regression
+model=LogisticRegression(max_iter=10000)
+model.fit(X_train ,y_train)
+model.score(X_test,y_test)
+y_pred=model.predict(X_test)
+cm=confusion_matrix(y_test,y_pred)
+print(cm)
+model.predict([[1,39,4,0,0,0,0,0,0,195,106,70,26.97,80,77]])
+import seaborn as sn
+plt.figure(figsize=(10,7))
+sn.heatmap(cm,annot=True)
+plt.xlabel("Predicted")
+plt.ylabel("Truth")
