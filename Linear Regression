@@ -1,0 +1,30 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+data={
+    "Experience":[1,2,3,4,5,6,7,8,9,10],
+    "Salary":[40000,45000,50000,60000,65000,70000,75000,80000,85000,90000]
+}
+df=pd.DataFrame(data)
+plt.scatter(df["Experience"],df["Salary"],color="blue")
+plt.xlabel("Experience")
+plt.ylabel("Salary")
+plt.title("Salary vs Experience")
+plt.show()
+X=df[["Experience"]]
+y=df["Salary"]
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=0)
+regressor=LinearRegression()
+regressor.fit(X_train,y_train)
+y_pred=regressor.predict(X_test)
+mse=mean_squared_error(y_test,y_pred)
+print("Mean squared error",mse)
+plt.scatter(X_test,y_test,color="blue")
+plt.plot(X_test,y_pred,color="red",linewidth=2)
+plt.xlabel("Experience")
+plt.ylabel("Salary")
+plt.title("Salary vs Experience")
+plt.show()
