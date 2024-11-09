@@ -1,0 +1,17 @@
+#we import the necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+#we get the voice dataset that we will be using
+df=pd.read_csv("/content/voice.csv")
+df["label"]=df["label"].replace({"male":0,"female":1})
+print(df.head(5))
+#drop the label 
+X=df.drop(["label"],axis="columns")
+y=df["label"]
+# we split our dataset
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.1,random_state=1)
+#we train our model
+model=LogisticRegression()
+model.fit(X_train,y_train)
+model.score(X_test,y_test)
