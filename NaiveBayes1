@@ -1,0 +1,28 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn.naive_bayes import GaussianNB
+df=pd.read_csv("/content/penguins_binary_classification.csv")
+print(df.head(5))
+df["species"]=df["species"].replace({"Adelie":0,"Gentoo":1})
+df["island"]=df["island"].replace({"Torgersen":0,"Dream":1,"Biscoe":2})
+print(df.head(5))
+nan_count = df.isnull().sum()
+print(nan_count)
+df=df.dropna(how="all")
+X=df.drop(["species"],axis="columns")
+y=df["species"]
+#we now split the dataset
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
+#we can now get our models
+model=GaussianNB()
+model.fit(X_train,y_train)
+model.score(X_test,y_test)
+y_pred=model.predict(X_test)
+cm=confusion_matrix(y_test,y_pred)
+import matplotlib.pyplot as plt
+import seaborn as sn
+plt.figure(figsize=(10,7))
+sn.heatmap(cm,annot=True)
+plt.xlabel("Predicted")
+plt.ylabel("Truth")
