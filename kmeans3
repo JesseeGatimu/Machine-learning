@@ -1,0 +1,27 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+df=pd.read_csv("/content/Iris.csv")
+df=df.drop(["Species","Id"],axis="columns")
+print(df.head(5))
+scaler=StandardScaler()
+scaled_data=scaler.fit_transform(df)
+inertia=[]
+k_values=range(1,15)
+for k in k_values:
+  km=KMeans(n_clusters=k)
+  km.fit(scaled_data)
+  inertia.append(km.inertia_)
+plt.plot(k_values,inertia)
+km=KMeans(n_clusters=3)
+y_pred=km.fit_predict(scaled_data)
+df["Cluster"]=y_pred
+from sklearn.decomposition import PCA
+pca=PCA(n_components=2)
+pca_df=pca.fit_transform(scaled_data)
+plt.scatter(pca_df[:,0],pca_df[:,1],c=df["Cluster"],cmap="viridis")
+plt.xlabel("component 1")
+plt.ylabel("component 2")
+plt.title("Iris dataset ")
+plt.show()
