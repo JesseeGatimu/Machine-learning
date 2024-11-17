@@ -1,0 +1,12 @@
+import spacy
+nlp=spacy.load("en_core_web_sm")
+doc=nlp("Jesse Gatimu was born in 1985 , Rongai District . He is the owner of Gatimu Inc . Gatimu sell cars .")
+for ent in doc.ents:
+  print(ent.text , " | ", ent.label_," | ",spacy.explain(ent.label_))
+from spacy import displacy
+displacy.render(doc,style="ent")
+from spacy.tokens import Span
+s1=Span(doc,18,19,label="ORG")
+doc.set_ents([s1],default="unmodified")
+for ent in doc.ents:
+  print(ent.text," |  ",ent.label_)
