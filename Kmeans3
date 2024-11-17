@@ -1,0 +1,25 @@
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+df=pd.read_csv("/content/Mall_Customers.csv")
+df=df.drop(["CustomerID"],axis="columns")
+df["Genre"]=df["Genre"].map({"Male":0,"Female":1})
+print(df.head(5))
+scaler=StandardScaler()
+scaled_data=scaler.fit_transform(df)
+k_values=range(1,50)
+inertia=[]
+for k in k_values:
+  km=KMeans(n_clusters=k)
+  km.fit(scaled_data)
+  inertia.append(km.inertia_)
+plt.plot(k_values,inertia)
+km=KMeans(n_clusters=10)
+km
+y_pred=km.fit_predict(scaled_data)
+df["Cluster"]=y_pred
+from sklearn.decomposition import PCA
+pca=PCA(n_components=2)
+pca_df=pca.fit_transform(scaled_data)
+plt.scatter(pca_df[:,0],pca_df[:,1],c=df["Cluster"],cmap="viridis")
