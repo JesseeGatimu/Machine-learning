@@ -1,0 +1,76 @@
+import pandas as pd
+import os
+base_url = "https://www.football-data.co.uk/mmz4281"
+seasons = ["2223", "2324", "2425"]
+dfs = []
+
+for season in seasons:
+    file_name = f"E0.csv"  
+    url = f"{base_url}/{season}/{file_name}"
+    print(f"Downloading / reading {url} …")
+    df = pd.read_csv(url)
+    df['season'] = season
+    dfs.append(df)
+
+# Combine
+data = pd.concat(dfs, ignore_index=True)
+
+# Select relevant columns
+cols_to_keep = [
+    'Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 
+    'B365H', 'B365D', 'B365A',  
+    'BbAvH', 'BbAvD', 'BbAvA','season'
+]
+# Filter columns that exist
+cols_existing = [c for c in cols_to_keep if c in data.columns]
+data = data[cols_existing]
+
+# Parse date
+data['Date'] = pd.to_datetime(data['Date'], dayfirst=True)
+
+data['HomeTeam'] = data['HomeTeam'].str.strip()
+data['AwayTeam'] = data['AwayTeam'].str.strip()
+data = data.sort_values(by='Date').reset_index(drop=True)
+
+print(data.head())
+print(data.info())
+
+
+print(data['season'].value_counts())  
+print(data.isnull().sum())           
+
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+data['result'] = le.fit_transform(data['FTR'])
+print(le.classes_)  
+
+
+data['prob_home'] = 1 / data['B365H']
+data['prob_draw'] = 1 / data['B365D']
+data['prob_away'] = 1 / data['B365A']
+
+
+total = data[['prob_home','prob_draw','prob_away']].sum(axis=1)
+data['prob_home'] /= total
+data['prob_draw'] /= total
+data['prob_away'] /= total
+
+
+train = data[data['season'].isin(['2223','2324'])]
+test = data[data['season']=='2425']
+
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
+
+X_train = train[['prob_home','prob_draw','prob_away']]
+y_train = train['result']
+X_test = test[['prob_home','prob_draw','prob_away']]
+y_test = test['result']
+
+model = LogisticRegression(multi_class='multinomial', max_iter=1000)
+model.fit(X_train, y_train)
+
+preds = model.predict(X_test)
+print("Accuracy:", accuracy_score(y_test, preds))
+print(classification_report(y_test, preds, target_names=le.classes_))
